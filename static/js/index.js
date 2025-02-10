@@ -12,7 +12,6 @@ const parse_data = async () => {
 };
 
 const main = async () => {
-    // load the menu
     // parse data
     parse_data();
 };
