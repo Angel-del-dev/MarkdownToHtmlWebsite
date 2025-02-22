@@ -8,13 +8,27 @@ const parse_data = async () => {
     })
     .then(r => r.json())
     .then(r => r);
-    console.log(data);
+    const container = document.getElementById('menu_list');
+    data.menu.map(link => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+
+        let label = link.split('/');
+        label = label.pop().split('.')[0];
+
+        a.append(document.createTextNode(label));
+        a.setAttribute('href', link);
+        li.append(a);
+        container.append(li);
+    });
+
+    const article = document.querySelector('article');
+    article.innerHTML = data.page;
 };
 
 const main = async () => {
     // parse data
     parse_data();
 };
-
 
 main();

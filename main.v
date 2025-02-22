@@ -33,8 +33,8 @@ pub fn (mut ctx Context) not_found() veb.Result {
 @['/route';post]
 pub fn (mut app App) route(mut ctx Context) veb.Result {
 	mut route_handler := json.decode(RouteHandler, ctx.form['json']) or { RouteHandler{} }
-
-	route_handler.route = os.abs_path('templates/'+route_handler.route)
+	//route_handler.route = os.abs_path('templates/'+route_handler.route)
+	route_handler.route = 'templates'+route_handler.route
 
 	mut menu := []string{}
 	mut page := ''
@@ -42,16 +42,31 @@ pub fn (mut app App) route(mut ctx Context) veb.Result {
 	mut dir_path := route_handler.route
 
 	if os.is_file(route_handler.route) {
-		if os.exists(route_handler.route) {
-			page = os.read_file(route_handler.route) or { '<h1>Route not found</h1>' }
-			mut tmp_route_splitted := route_handler.route.split('/')
-			tmp_route_splitted.pop()
-			dir_path = os.abs_path('templates/'+tmp_route_splitted.join('/'))
-		}
+		page = os.read_file(route_handler.route) or { '<h1>Route not found</h1>' }
+		mut tmp_route_splitted := route_handler.route.split('/')
+		tmp_route_splitted.pop()
+		dir_path = tmp_route_splitted.join('/')
 	}
 
 	if os.exists(dir_path) {
 		menu = os.ls(dir_path) or { []string{} }
+
+		mut appended_path := ''
+
+		mut splitted := route_handler.route.split('/')
+		splitted.delete(0)
+
+		if splitted.last().contains('.md') {
+			splitted.pop()
+		}
+		appended_path = splitted.join('/')
+
+		for mut entry in menu {
+			entry = appended_path+'/'+entry
+
+			if appended_path.trim(' ') != '' { entry = '/'+entry }
+		}
+
 		if page == '' && os.exists(os.abs_path(dir_path)+'/dashboard.md') {
 			page = os.read_file(os.abs_path(dir_path)+'/dashboard.md') or { '<h1>A default file does not exist for this route</h1>' }
 		}
